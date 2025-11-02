@@ -1,0 +1,21 @@
+[Unit]
+Description=Monitoring HTTPS Endpoint
+Description=Service that checks HTTPS endpoint status
+After=network.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+User=root
+
+# Main script
+ExecStart=/usr/local/bin/monitoring.sh
+
+# Hooks for lifecycle events
+ExecStartPost=/usr/local/bin/monitoring-hooks.sh post-start
+ExecStopPost=/usr/local/bin/monitoring-hooks.sh post-stop
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=monitoring

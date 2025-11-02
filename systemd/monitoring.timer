@@ -1,0 +1,17 @@
+[Unit]
+Description=Run monitoring service every minute
+Description=Timer for HTTPS endpoint monitoring (every minute)
+Requires=monitoring.service
+
+[Timer]
+# Run every minute
+OnCalendar=*:0/1
+
+# If previous run is still executing, wait until it finishes
+AccuracySec=1s
+
+# Ensure service starts even if system was powered off
+Persistent=true
+
+[Install]
+WantedBy=timers.target
