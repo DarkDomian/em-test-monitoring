@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ENDPOINT_URL="https://test.com/monitoring/test/api"
+# https://test.com/monitoring/test/api
+ENDPOINT_URL="https://httpbin.org/status/200"
 SERVICE_NAME="monitoring-daemon"
 LOG_FILE="/var/log/monitoring.log"
 
@@ -22,14 +23,21 @@ log_message() {
 # Function to make HTTPS request
 check_endpoint() {
     local response
+    local response_code
+    local response_time
         
     # Make HTTPS request with timeout and metrics
-    response=$(curl -s -o /dev/null -w "Endpoint responded with HTTP%{http_code} (%{time_total}s)" \
-                    --max-time 10 \
-                    --connect-timeout 5 \
+    response=$(curl -L -s -k -o /dev/null -w "%{http_code} %{time_total}" \
+                    --max-time 30 \
+                    --connect-timeout 10 \
                     "$ENDPOINT_URL" 2>/dev/null)
     
     local curl_exit_code=$?
+
+    response_code=$(echo "$response" | awk '{print $1}')
+    response_time=$(echo "$response" | awk '{print $2}')
+
+    response="Endpoint responded with HTTP $response_code ($response_time s)"
     
     # Handle different curl exit codes
     case $curl_exit_code in
@@ -46,7 +54,7 @@ check_endpoint() {
             log_message "ERROR" "Cannot connect to endpoint (curl exit: $curl_exit_code)"
             return 2
             ;;
-        60)
+        60|35)
             log_message "ERROR" "SSL certificate verification failed"
             return 3
             ;;

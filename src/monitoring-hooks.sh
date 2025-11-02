@@ -13,12 +13,6 @@ log_hook() {
 }
 
 case "$1" in
-    post-start)
-        log_hook "post-start" "Service successfully started"
-        ;;
-    post-stop)
-        log_hook "post-stop" "Service stopped (exit code: $?)"
-        ;;
     reload)
         log_hook "reload" "Service reload requested"
         ;;
